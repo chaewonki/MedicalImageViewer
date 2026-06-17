@@ -9,11 +9,24 @@ qt_standard_project_setup()
 qt_add_executable(MiniMedicalImageViewer
     WIN32 MACOSX_BUNDLE
     main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    imageviewer.h
-    imageviewer.cpp
 
+    ui/mainwindow.h
+    ui/mainwindow.cpp
+    ui/imageviewer.h
+    ui/imageviewer.cpp
+
+    dicom/dicomimagedata.h
+    dicom/dicomloader.h
+    dicom/dicomloader.cpp
+
+    processing/imageprocessor.h
+    processing/imageprocessor.cpp
+
+)
+
+target_include_directories(MiniMedicalImageViewer
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_link_libraries(MiniMedicalImageViewer
