@@ -3,6 +3,7 @@ project(MiniMedicalImageViewer LANGUAGES CXX)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
 find_package(DCMTK CONFIG REQUIRED)
+find_package(OpenCV CONFIG REQUIRED)
 
 qt_standard_project_setup()
 
@@ -21,6 +22,9 @@ qt_add_executable(MiniMedicalImageViewer
 
     processing/imageprocessor.h
     processing/imageprocessor.cpp
+    ui/controlpanel.h
+    ui/controlpanel.cpp
+    processing/imageoperation.h
 
 )
 
@@ -34,6 +38,7 @@ target_link_libraries(MiniMedicalImageViewer
         Qt::Core
         Qt::Widgets
         DCMTK::DCMTK
+        ${OpenCV_LIBS}
 )
 
 install(TARGETS MiniMedicalImageViewer

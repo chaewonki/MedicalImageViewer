@@ -4,6 +4,7 @@
 #include <dcmtk/dcmimgle/dcmimage.h>
 
 #include <limits>
+#include <cmath>
 
 bool DicomLoader::load(const QString& filePath, DicomImageData& outData, QString& errorMessage)
 {
@@ -28,16 +29,21 @@ bool DicomLoader::load(const QString& filePath, DicomImageData& outData, QString
         return false;
     }
 
+    // X-ray defalut
     double slope = 1.0;
     double intercept = 0.0;
-
     dataset->findAndGetFloat64(DCM_RescaleSlope, slope);
     dataset->findAndGetFloat64(DCM_RescaleIntercept, intercept);
-
     OFString photometric;
     dataset->findAndGetOFString(DCM_PhotometricInterpretation, photometric);
-
     outData.inverted = photometric == "MONOCHROME1";
+
+    Uint16 bitsStored = 16;
+    if (!dataset->findAndGetUint16(DCM_BitsStored, bitsStored).good() ||
+        bitsStored == 0 || bitsStored > 16) {
+        bitsStored = 16;
+    }
+    outData.bitsStored = static_cast<int>(bitsStored);
 
     const Uint16* pixelData = nullptr;
     unsigned long pixelCount = 0;
@@ -78,11 +84,27 @@ bool DicomLoader::load(const QString& filePath, DicomImageData& outData, QString
     outData.minValue = minValue;
     outData.maxValue = maxValue;
 
-    outData.windowWidth = maxValue - minValue;
-    outData.windowCenter = (maxValue + minValue) / 2.0;
+    double windowWidth = 0.0;
+    double windowCenter = 0.0;
 
-    if (outData.windowWidth <= 0.0)
-        outData.windowWidth = 1.0;
+    const bool hasWindowWidth =
+        dataset->findAndGetFloat64(DCM_WindowWidth, windowWidth, 0).good();
+
+    const bool hasWindowCenter =
+        dataset->findAndGetFloat64(DCM_WindowCenter, windowCenter, 0).good();
+
+    if (hasWindowWidth && hasWindowCenter &&
+        std::isfinite(windowWidth) && std::isfinite(windowCenter) &&
+        windowWidth > 0.0) {
+        outData.windowWidth = windowWidth;
+        outData.windowCenter = windowCenter;
+    } else {
+        outData.windowWidth = maxValue - minValue;
+        outData.windowCenter = (maxValue + minValue) / 2.0;
+
+        if (outData.windowWidth <= 0.0)
+            outData.windowWidth = 1.0;
+    }
 
     return true;
 }

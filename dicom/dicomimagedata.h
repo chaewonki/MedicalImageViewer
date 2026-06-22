@@ -2,7 +2,6 @@
 #define DICOMIMAGEDATA_H
 
 #include <QVector>
-#include <QString>
 
 struct DicomImageData{
     int width = 0;
@@ -16,6 +15,7 @@ struct DicomImageData{
     double windowWidth = 1.0;
     double windowCenter = 0.0;
 
+    int bitsStored = 16;
     bool inverted = false; // MONOCHROME1 대응
 
     bool isValid() const{
