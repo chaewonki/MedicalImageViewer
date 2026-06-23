@@ -20,6 +20,11 @@
 #include <QTableWidget>
 #include <QHeaderView>
 
+#include <QtCharts/QChartView>
+#include <QtCharts/QChart>
+#include <QtCharts/QValueAxis>
+#include <QtCharts/QLineSeries>
+
 #include <limits>
 #include <cmath>
 
@@ -246,6 +251,10 @@ void MainWindow::setRoiMode(bool enabled)
         viewer->setWindowLevelMode(false);
         viewer->setMagnifierMode(false);
     }
+    else{
+        viewer->clearRoi();
+        clearRoiState();
+    }
 
     controlPanel->setRoiChecked(enabled);
     viewer->setRoiMode(enabled);
@@ -255,6 +264,21 @@ void MainWindow::setRoiMode(bool enabled)
     } else {
         updateWindowLevelStatus();
     }
+}
+
+void MainWindow::clearRoiState()
+{
+    currentRoiRect = QRect();
+    currentRoiHistogram.clear();
+
+    currentRoiMean = 0.0;
+    currentRoiMin = 0.0;
+    currentRoiMax = 0.0;
+    currentRoiStdDev = 0.0;
+    currentRoiCount = 0;
+    hasRoiStats = false;
+
+    viewer->clearRoi();
 }
 
 void MainWindow::onRoiSelected(const QRect &roiRect)
@@ -329,7 +353,7 @@ void MainWindow::calculateRoiStatistics(const QRect &roiRect)
                 roiMax = value;
 
             int bin = static_cast<int>(
-                ((value - minValue) / range) * (binCount - 1)
+                ((value - minValue) / range) * binCount
                 );
 
             if (bin < 0)
@@ -394,34 +418,63 @@ void MainWindow::showRoiHistogram()
         );
 
     QTableWidget *table = new QTableWidget(&dialog);
-    table->setColumnCount(3);
+    table->setColumnCount(2);
     table->setRowCount(currentRoiHistogram.size());
-    table->setHorizontalHeaderLabels(QStringList() << "Bin" << "Value Range" << "Count");
+    table->setHorizontalHeaderLabels(QStringList() << "Value Range" << "Count");
 
     const double minValue = currentDicom.minValue;
     const double maxValue = currentDicom.maxValue;
     const double range = maxValue - minValue;
     const int binCount = currentRoiHistogram.size();
 
+    QLineSeries *series = new QLineSeries();
+
+    for (int i = 0; i < binCount; ++i) {
+        double binCenter = minValue + range * (i + 0.5) / binCount;
+        series->append(binCenter, currentRoiHistogram[i]);
+    }
+
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle("ROI Histogram");
+    chart->legend()->hide();
+
+    QValueAxis *axisX = new QValueAxis();
+    axisX->setTitleText("Pixel Value");
+    axisX->setRange(minValue, maxValue);
+    axisX->setLabelFormat("%.0f");
+
+    QValueAxis *axisY = new QValueAxis();
+    axisY->setTitleText("Count");
+    axisY->setLabelFormat("%d");
+
+    chart->addAxis(axisX, Qt::AlignBottom);
+    chart->addAxis(axisY, Qt::AlignLeft);
+
+    series->attachAxis(axisX);
+    series->attachAxis(axisY);
+
+    QChartView *chartView = new QChartView(chart, &dialog);
+    chartView->setRenderHint(QPainter::Antialiasing);
+    chartView->setMinimumHeight(260);
+
     for (int i = 0; i < binCount; ++i) {
         double binStart = minValue + (range * i / binCount);
         double binEnd = minValue + (range * (i + 1) / binCount);
 
-        table->setItem(i, 0, new QTableWidgetItem(QString::number(i)));
-
         table->setItem(
             i,
-            1,
+            0,
             new QTableWidgetItem(
                 QString("%1 ~ %2")
-                    .arg(binStart, 0, 'f', 1)
-                    .arg(binEnd, 0, 'f', 1)
+                    .arg(static_cast<int>(binStart))
+                    .arg(static_cast<int>(binEnd))
                 )
             );
 
         table->setItem(
             i,
-            2,
+            1,
             new QTableWidgetItem(QString::number(currentRoiHistogram[i]))
             );
     }
@@ -429,6 +482,7 @@ void MainWindow::showRoiHistogram()
     table->horizontalHeader()->setStretchLastSection(true);
 
     layout->addWidget(summaryLabel);
+    layout->addWidget(chartView);
     layout->addWidget(table);
 
     dialog.exec();

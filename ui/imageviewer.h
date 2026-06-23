@@ -61,7 +61,7 @@ private:
     QGraphicsPixmapItem *magnifierItem = nullptr;
     QGraphicsEllipseItem *magnifierBorderItem = nullptr;
 
-    int magnifierSize = 360;
+    int magnifierSize = 450;
     double magnifierScale = 2.0;
 
     void updateMagnifier(const QPoint &viewPos);

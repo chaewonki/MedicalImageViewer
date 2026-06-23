@@ -60,6 +60,8 @@ private:
     void showRoiHistogram();
     void setWindowLevelMode(bool enabled);
     void setRoiMode(bool enabled);
+    void clearRoiState();
+
     void setMagnifierMode(bool enabled);
 
     void applyImageOperation(ImageOperation operation);

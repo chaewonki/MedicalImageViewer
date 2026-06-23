@@ -282,7 +282,7 @@ void ImageViewer::mousePressEvent(QMouseEvent *event)
 
         roiItem = scene->addRect(
             QRectF(roiStartScenePos, roiStartScenePos),
-            QPen(Qt::yellow, 1, Qt::DashLine),
+            QPen(Qt::yellow, 6, Qt::DashLine),
             QBrush(Qt::NoBrush)
             );
         roiItem->setZValue(10.0);

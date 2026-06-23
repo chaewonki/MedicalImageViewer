@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 project(MiniMedicalImageViewer LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Charts)
 find_package(DCMTK CONFIG REQUIRED)
 find_package(OpenCV CONFIG REQUIRED)
 
@@ -37,6 +37,7 @@ target_link_libraries(MiniMedicalImageViewer
     PRIVATE
         Qt::Core
         Qt::Widgets
+        Qt6::Charts
         DCMTK::DCMTK
         ${OpenCV_LIBS}
 )
