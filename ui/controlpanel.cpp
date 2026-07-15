@@ -5,7 +5,7 @@
 #include <QPushButton>
 #include <QSignalBlocker>
 
-ControlPanel::ControlPanel(QWidget *parent)
+ControlPanel::ControlPanel(QWidget* parent)
     : QWidget(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -19,14 +19,14 @@ ControlPanel::ControlPanel(QWidget *parent)
     magnifierButton = new QPushButton("Magnifier", this);
     magnifierButton->setCheckable(true);
 
-    QPushButton *histogramButton = new QPushButton("Show Histogram", this);
+    QPushButton* histogramButton = new QPushButton("Show Histogram", this);
 
-    QPushButton *edgeButton = new QPushButton("Edge Enhancement", this);
-    QPushButton *edgeLapButton = new QPushButton("Edge Enhancement-Lap", this);
-    QPushButton *sharpenButton = new QPushButton("Sharpen", this);
-    QPushButton *contrastButton = new QPushButton("Contrast Enhancement", this);
+    QPushButton* edgeButton = new QPushButton("Edge Enhancement", this);
+    QPushButton* edgeLapButton = new QPushButton("Edge Enhancement-Lap", this);
+    QPushButton* sharpenButton = new QPushButton("Sharpen", this);
+    QPushButton* contrastButton = new QPushButton("Contrast Enhancement", this);
 
-    QPushButton *flipHButton = new QPushButton("Flip H", this);
+    QPushButton* flipHButton = new QPushButton("Flip H", this);
     QPushButton *flipVButton = new QPushButton("Flip V", this);
     QPushButton *rotate90Button = new QPushButton("Rotate 90", this);
     QPushButton *rotate180Button = new QPushButton("Rotate 180", this);
@@ -53,7 +53,7 @@ ControlPanel::ControlPanel(QWidget *parent)
         emit imageOperationRequested(ImageOperation::EdgeDetection);
     });
     connect(edgeLapButton, &QPushButton::clicked, this, [this](){
-        emit imageOperationRequested(ImageOperation::EdgeLapDection);
+        emit imageOperationRequested(ImageOperation::EdgeLapDetection);
     });
 
     connect(sharpenButton, &QPushButton::clicked, this, [this]() {

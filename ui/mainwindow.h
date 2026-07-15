@@ -1,69 +1,70 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "dicom/dicomimagedata.h"
+#include "analysis/roistatistics.h"
+#include "document/imagedocument.h"
 #include "processing/imageoperation.h"
+
 #include <QMainWindow>
-#include <QSlider>
-#include <QPushButton>
 #include <QRect>
-#include <QVector>
 
 class ImageViewer;
 class ControlPanel;
+
+enum class InteractionMode
+{
+    None,
+    WindowLevel,
+    Roi,
+    Magnifier
+};
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    explicit MainWindow(QWidget* parent = nullptr);
+    ~MainWindow() override = default;
 
 private slots:
+    // Image loading and display
     void openDicom();
     void resetImage();
 
 private:
-    ImageViewer *viewer;
-    ControlPanel *controlPanel = nullptr;
+    // UI
+    ImageViewer* viewer = nullptr;
+    ControlPanel* controlPanel = nullptr;
 
-    DicomImageData currentDicom;
-    DicomImageData originalDicom;
+    // Image data
+    ImageDocument document;
 
-    QImage currentDisplayImage;
+    InteractionMode interactionMode = InteractionMode::None;
+    // ROI state
+    RoiStatistics currentRoiStatistics;
 
-    bool windowLevelMode = false;
-    bool roiMode = false;
-    QRect currentRoiRect;
-    bool hasRoiStats = false;
-    QVector<int> currentRoiHistogram;
-    double currentRoiMean = 0.0;
-    double currentRoiMin = 0.0;
-    double currentRoiMax = 0.0;
-    double currentRoiStdDev = 0.0;
-    int currentRoiCount = 0;
-    bool magnifierMode = false;
-
+    // UI construction
     void createToolBar();
     void createRightPanel();
 
-    void updateDisplayImage();
-    void updateDisplayImage(bool resetView);
+    void setInteractionMode(InteractionMode mode);
 
-    void updateWindowLevelStatus();
-    void onWindowLevelDragged(int deltaX, int deltaY);
-
-
-    void onRoiSelected(const QRect &roiRect);
-    void calculateRoiStatistics(const QRect &roiRect);
-    void showRoiHistogram();
+    // Window / Level
     void setWindowLevelMode(bool enabled);
-    void setRoiMode(bool enabled);
-    void clearRoiState();
+    void onWindowLevelDragged(int deltaX, int deltaY);
+    void updateWindowLevelStatus();
 
+    // ROI
+    void setRoiMode(bool enabled);
+    void onRoiSelected(const QRect& roiRect);
+    void clearRoiState();
+    void showRoiHistogram();
+
+    // Magnifier
     void setMagnifierMode(bool enabled);
 
+    // Image processing
     void applyImageOperation(ImageOperation operation);
 };
 

@@ -230,7 +230,7 @@ QImage ImageProcessor::apply(const QImage& image, ImageOperation operation)
     case ImageOperation::EdgeDetection:
         return edgeEnhancement(image);
 
-    case ImageOperation::EdgeLapDection:
+    case ImageOperation::EdgeLapDetection:
         return edgeEnhancementLap(image);
 
     case ImageOperation::Sharpen:

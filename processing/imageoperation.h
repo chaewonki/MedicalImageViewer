@@ -4,7 +4,7 @@
 enum class ImageOperation
 {
     EdgeDetection,
-    EdgeLapDection,
+    EdgeLapDetection,
     Sharpen,
     ContrastEnhancement,
 
